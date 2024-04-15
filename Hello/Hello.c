@@ -69,9 +69,7 @@ static ssize_t write() {
 }
 
 // ioctl()
-static long ioctl(struct file *filp,
-                 unsigned int cmd,
-		 unsigned long arg) {
+static long ioctl() {
   return 0;
 }
 
