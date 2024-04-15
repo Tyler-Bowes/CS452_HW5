@@ -64,10 +64,7 @@ static ssize_t read(struct file *filp,
 }
 
 // write()
-static ssize_t write(struct file *filp,
-         const char *buf,
-         size_t count,
-         loff_t *f_pos) {
+static ssize_t write() {
   return 0;
 }
 
