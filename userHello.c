@@ -39,8 +39,7 @@ static int init(void) {
 // can have multiple instances open concurrently. They might be scanning
 // different data with different separators
 FILE* open(const char* filename) {
-    File* file = (File*)malloc(sizeof(*file));  // allocate memory for file
-    file.
+    // File* file = (File*)malloc(sizeof(*file));  // allocate memory for file
     FILE* file = fopen(filename, "r");  // open file
     if (file == NULL) {
         printf("Could not open file %s\n", filename);
