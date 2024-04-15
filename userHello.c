@@ -9,6 +9,7 @@ typedef struct {
 
 typedef struct {
   char *s;
+  bool flag;  // knowing if seperators should be overwritten
 } File;				/* per-open() data */
 
 static Device device;
@@ -42,11 +43,12 @@ FILE* open(const char* filename) {
 // The set of separators is specified by calling ioctl() with a request of 0,
 // followed by calling write() with the separator characters.
 // The separators are not null-terminated.
-int ioctl(int request, FILE* file, char* separators) {
+int ioctl(int request, FILE* file) {
     if (request != 0) {
         printf("do nothing\n");
         return -1;
     }
     // file points to stuct that contains diver data
+    File.flag = true;
     return 0;
 }
