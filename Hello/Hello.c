@@ -22,6 +22,8 @@ typedef struct {
 
 static Device device;
 
+
+// open()
 static int open(struct inode *inode, struct file *filp) {
   File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
   if (!file) {
@@ -38,6 +40,7 @@ static int open(struct inode *inode, struct file *filp) {
   return 0;
 }
 
+// release()
 static int release(struct inode *inode, struct file *filp) {
   File *file=filp->private_data;
   kfree(file->s);
@@ -45,6 +48,7 @@ static int release(struct inode *inode, struct file *filp) {
   return 0;
 }
 
+// read()
 static ssize_t read(struct file *filp,
 		    char *buf,
 		    size_t count,
@@ -59,6 +63,15 @@ static ssize_t read(struct file *filp,
   return n;
 }
 
+// write()
+static ssize_t write(struct file *filp,
+         const char *buf,
+         size_t count,
+         loff_t *f_pos) {
+  return 0;
+}
+
+// ioctl()
 static long ioctl(struct file *filp,
                  unsigned int cmd,
 		 unsigned long arg) {
@@ -73,6 +86,7 @@ static struct file_operations ops={
   .owner=THIS_MODULE
 };
 
+// init()
 static int __init my_init(void) {
   const char *s="Hello world!\n";
   int err;
@@ -98,6 +112,7 @@ static int __init my_init(void) {
   return 0;
 }
 
+// exit()
 static void __exit my_exit(void) {
   cdev_del(&device.cdev);
   unregister_chrdev_region(device.devno,1);
