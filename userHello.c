@@ -25,12 +25,21 @@ static int init(void) {
 // If the length of the token exceeds the number of characters requested, another read() scans more of the same token
 // •A return value of 0 indicates “end of token.”
 // •A return value of -1 indicates “end of data.
-
+// int read(File* file, size_t count) {
+//     int n = strlen(file->s);
+//     n = (n < count ? n : count);
+//     if (copy_to_user(, file->s, n)) {
+//         return 0;
+//     }
+//     return n;
+// }
 
 // The open() function must create an instance of a scanner. A process
 // can have multiple instances open concurrently. They might be scanning
 // different data with different separators
 FILE* open(const char* filename) {
+    File* file = (File*)malloc(sizeof(*file));  // allocate memory for file
+    file.
     FILE* file = fopen(filename, "r");  // open file
     if (file == NULL) {
         printf("Could not open file %s\n", filename);
