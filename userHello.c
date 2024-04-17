@@ -96,7 +96,16 @@ int ioctl(int request, FILE* file) {
         return -1;
     }
     // file points to stuct that contains diver data
-    File.flag = true;
+    file.flag = true;
+    // // Update separators based on data written using write() (assuming device.separators holds the separators)
+    // free(device.separators);  // Free existing memory
+    // device.separators = (char *)malloc(count + 1); // Allocate memory for new separators
+    // if (device.separators == NULL) {
+    //     printf("malloc failed\n");
+    //     return -1;
+    // }
+    // strncpy(device.separators, buf, count);  // Copy new separators from write()
+    // device.separators[count] = '\0';  // Ensure null termination
     return 0;
 }
 
@@ -109,13 +118,22 @@ ssize_t write(int file_desc, const char* buf, size_t count) {
     // ioctl(fd, 0, NULL);
 
     // 2. Specify the sequence of characters to scan by calling write()
-    ssize_t n = write(fd, buf, count); 
+    // ssize_t n = write(fd, buf, count); 
 
-    // Check for errors
-    if (n == -1) {
-        perror("write");
+    // Update scanner data (assuming device.s holds the data)
+    device.s = realloc(device.s, strlen(device.s) + count + 1);
+    if (device.s == NULL) {
+        printf("realloc failed\n");
         return -1;
     }
+    strncat(device.s, buf, count);
+    device.s[strlen(device.s)] = '\0'; // Ensure null termination
 
-    return n;
+    // Check for errors
+    // if (n == -1) {
+    //     printf("write\n");
+    //     return -1;
+    // }
+
+    // return n;
 }
