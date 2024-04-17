@@ -69,9 +69,9 @@ static ssize_t read(struct file *filp, // used in kernel space
 // }
 
 // // ioctl()
-// static long ioctl() {
-//   return 0;
-// }
+static long ioctl() {
+  return 0;
+}
 
 static struct file_operations ops={
   .open=open,
