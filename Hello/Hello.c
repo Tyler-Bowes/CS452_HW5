@@ -49,14 +49,14 @@ static int release(struct inode *inode, struct file *filp) {
 }
 
 // read()
-static ssize_t read(struct file *filp,
+static ssize_t read(struct file *filp, // used in kernel space
 		    char *buf,
 		    size_t count,
 		    loff_t *f_pos) { 
-  File *file=filp->private_data;
-  int n=strlen(file->s);
-  n=(n<count ? n : count);
-  if (copy_to_user(buf,file->s,n)) {
+  File *file=filp->private_data;  // 
+  int n=strlen(file->s);  // calculate the length of the string
+  n=(n<count ? n : count); 
+  if (copy_to_user(buf,file->s,n)) {  // copy_to_user() is a kernel function
     printk(KERN_ERR "%s: copy_to_user() failed\n",DEVNAME);
     return 0;
   }
