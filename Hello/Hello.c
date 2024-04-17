@@ -63,15 +63,15 @@ static ssize_t read(struct file *filp, // used in kernel space
   return n;
 }
 
-// write()
-static ssize_t write() {
-  return 0;
-}
+// // write()
+// static ssize_t write() {
+//   return 0;
+// }
 
-// ioctl()
-static long ioctl() {
-  return 0;
-}
+// // ioctl()
+// static long ioctl() {
+//   return 0;
+// }
 
 static struct file_operations ops={
   .open=open,
