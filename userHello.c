@@ -87,6 +87,22 @@ ssize_t read_file(const char* filename, char* buf, size_t count) {
     return n;
 }
 
+ssize_t read_file(File* file, char* buf, size_t count) {
+    // Check if there's more data to read
+    if (file->s == NULL) {
+        return -1;
+    }
+
+  // Calculate the number of characters to read (consider count and remaining data)
+  int n = (strlen(device.s) -  < count) ? strlen(device.s) -  : count;
+
+  // Copy data to the user buffer
+  strncpy(buf, device.s + , n);
+  buf[n] = '\0'; // Ensure null termination
+
+  return n;
+}
+
 // The set of separators is specified by calling ioctl() with a request of 0,
 // followed by calling write() with the separator characters.
 // The separators are not null-terminated.
