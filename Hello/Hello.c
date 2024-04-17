@@ -48,14 +48,19 @@ static int release(struct inode *inode, struct file *filp) {
   return 0;
 }
 
-// read()
+// read() copies until seperator
 static ssize_t read(struct file *filp, // used in kernel space
-		    char *buf,
-		    size_t count,
-		    loff_t *f_pos) { 
-  File *file=filp->private_data;  // 
+		    char *buf, // buffer (what write to)
+		    size_t count,  // size of buffer
+		    loff_t *f_pos) { // pos offset, dont worry about
+  File *file=filp->private_data;  // pointer to file struct
+  
   int n=strlen(file->s);  // calculate the length of the string
   n=(n<count ? n : count); 
+
+  // check for finding seperator
+  // if there is one find its index and return -1
+
   if (copy_to_user(buf,file->s,n)) {  // copy_to_user() is a kernel function
     printk(KERN_ERR "%s: copy_to_user() failed\n",DEVNAME);
     return 0;
@@ -65,8 +70,10 @@ static ssize_t read(struct file *filp, // used in kernel space
 
 // // write()
 // static ssize_t write() {
-//   return 0;
+//   return 0;  // return success or failure
+//
 // }
+// copy_from_user()
 
 // // ioctl()
 static long ioctl(struct file *file, unsigned int cmd, unsigned long arg) {

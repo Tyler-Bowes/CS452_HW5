@@ -5,18 +5,19 @@
 
 
 typedef struct {
-    dev_t devno;
-    struct cdev cdev;
-    char *s;
-    char *separators;
+    dev_t devno;  // kernel stuff
+    struct cdev cdev;  // kernel (structs the kernel uses)
+    char *s;  
+    char *separators;  // same as file (default separators)
 } Device;			/* per-init() data */
 
 typedef struct {
-    char *s;
+    char *s;  // character string (buffer)
     bool flag;  // knowing if seperators should be overwritten
-    char *separators;
-  // seperators and can initialized in init
-} File;				/* per-open() data */
+    char *separators;  // seperators and can initialized in init
+    // need something to tell once it 
+    size_t buf_size  // buffer size
+} File;				/* per-open() data (file descriptor)*/
 
 static Device device;
 
@@ -47,20 +48,20 @@ static void init(void) {
 device_s to the string, and sets the File pointer to point to 
 the new File structure
 */
-int open(File **file, const char *device_s, const char *separators) {
-    *file = (File *)malloc(sizeof(**file));
-    if (!*file) { // check if malloc failed
+int open(struct File *file, const char *device_s, const char *separators) {
+    file = (File *)malloc(sizeof(*file));
+    if (!file) { // check if malloc failed
         printf("%s: malloc() failed\n", "DEVNAME");
         return -1;
     }
-    (*file)->s = (char *)malloc(strlen(device_s) + 1); 
-    (*file)->separators = (char *)malloc(strlen(separators) + 1);
-    if (!(*file)->s || !(*file)->separators) { // check if malloc failed
+    (file)->s = (char *)malloc(strlen(device_s) + 1); 
+    (file)->separators = (char *)malloc(strlen(separators) + 1);
+    if (!(file)->s || !(file)->separators) { // check if malloc failed
         printf("%s: malloc() failed\n", "DEVNAME");
         return -1;
     }
-    strcpy((*file)->s, device_s); // copy device_s to the string
-    strcpy((*file)->separators, separators); // copy separators to the string
+    strcpy((file)->s, device_s); // copy device_s to the string
+    strcpy((file)->separators, separators); // copy separators to the string
     return 0;
 }
 
@@ -84,7 +85,7 @@ ssize_t read_file(const char* filename, char* buf, size_t count) {
     // buf[n] = '\0'; // Ensure the buffer is null-terminated
 
     fclose(file);
-    return n;
+return n;
 }
 
 ssize_t read_file(File* file, char* buf, size_t count) {
@@ -100,7 +101,7 @@ ssize_t read_file(File* file, char* buf, size_t count) {
   strncpy(buf, device.s + , n);
   buf[n] = '\0'; // Ensure null termination
 
-  return n;
+    return n;
 }
 
 // The set of separators is specified by calling ioctl() with a request of 0,
