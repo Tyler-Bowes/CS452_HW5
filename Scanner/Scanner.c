@@ -27,6 +27,9 @@ typedef struct {
 static Device device;
 
 
+//init()
+// register_chrdev?
+
 // open()
 static int open(struct inode *inode, struct file *filp) {
   File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
@@ -63,7 +66,14 @@ static ssize_t read(struct file *filp, // used in kernel space
   n=(n<count ? n : count); 
 
   // check for finding seperator
-  // if there is one find its index and return -1
+  // if there is one find its index and return the index -1
+  // if there is no seperator return the length of the string
+  for (int i=0; i<n; i++) {
+    if (strchr(file->separators,file->s[i])) {
+      n=i+1;
+      break;
+    }
+  }
 
   if (copy_to_user(buf,file->s,n)) {  // copy_to_user() is a kernel function
     printk(KERN_ERR "%s: copy_to_user() failed\n",DEVNAME);
@@ -73,7 +83,10 @@ static ssize_t read(struct file *filp, // used in kernel space
 }
 
 // // write()
-// static ssize_t write(struct file *file, const char __user *buf, size_t count, loff_t *ppos) {
+// static ssize_t write(struct file *file, 
+                      // const char __user *buf, 
+                      // size_t count, 
+                      // loff_t *ppos) {
 //   return 0;  // return success or failure
 //
 // }
