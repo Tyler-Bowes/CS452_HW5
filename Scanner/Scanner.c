@@ -32,11 +32,13 @@ static Device device;
 
 // open()
 static int open(struct inode *inode, struct file *filp) {
+  // allocate memory for file struct (can make many instances)
   File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
   if (!file) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
     return -ENOMEM; // return error code
   }
+
   file->s=(char *)kmalloc(strlen(device.s)+1,GFP_KERNEL);
   if (!file->s) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
@@ -44,7 +46,7 @@ static int open(struct inode *inode, struct file *filp) {
     return -ENOMEM;
   }
   strcpy(file->s,device.s);
-  file->flag = false; // initialize flag to false
+  file->flag = false; // initialize flag to false (will be overwritten in ioctl())
   file->separators = device.separators; // initialize separators
   file->buf_size = strlen(device.s) + 1; // initialize buffer size
   filp->private_data=file;
@@ -100,7 +102,18 @@ static ssize_t read(struct file *filp, // used in kernel space
 static long ioctl(struct file *file, 
                   unsigned int cmd,  // used for rewriting seperators
                   unsigned long arg) { // used for 
-    return 0;
+  File *file=filp->private_data;
+  if (cmd == 0) { // set seperators
+  // rewriting seperators happens in write()
+    // if (copy_from_user(file->separators,(char *)arg,strlen(file->separators)+1)) {
+    //   printk(KERN_ERR "%s: copy_from_user() failed\n",DEVNAME);
+    //   return -EFAULT;
+    // }
+    file->flag = true; // set flag to true
+  } else {
+    // do nothing, seperators are not being rewritten
+  }
+  return 0;
 }
 
 static struct file_operations ops={
@@ -154,6 +167,7 @@ static void __exit my_exit(void) {
   cdev_del(&device.cdev);
   unregister_chrdev_region(device.devno,1);
   kfree(device.s);
+  kfree(device.separators);  // frees default separators in device 
   printk(KERN_INFO "%s: exit\n",DEVNAME);
 }
 
