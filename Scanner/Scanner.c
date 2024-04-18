@@ -14,11 +14,15 @@ typedef struct {
   dev_t devno;
   struct cdev cdev;
   char *s;
+  char *separators; // same as file (default separators)
 } Device;			/* per-init() data */
 
 typedef struct {
-  char *s;
-} File;				/* per-open() data */
+  char *s; // character string (buffer)
+  bool flag; // knowing if seperators should be overwritten
+  char *separators; // seperators and can initialized in init
+  size_t buf_size; // buffer size
+} File;				/* per-open() data (file descriptor)*/
 
 static Device device;
 
@@ -28,7 +32,7 @@ static int open(struct inode *inode, struct file *filp) {
   File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
   if (!file) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
-    return -ENOMEM;
+    return -ENOMEM; // return error code
   }
   file->s=(char *)kmalloc(strlen(device.s)+1,GFP_KERNEL);
   if (!file->s) {
@@ -69,7 +73,7 @@ static ssize_t read(struct file *filp, // used in kernel space
 }
 
 // // write()
-// static ssize_t write() {
+// static ssize_t write(struct file *file, const char __user *buf, size_t count, loff_t *ppos) {
 //   return 0;  // return success or failure
 //
 // }
