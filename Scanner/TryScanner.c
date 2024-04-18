@@ -14,6 +14,9 @@ static void err(char *s, char *file, int line) {
   exit(1);
 }
 
+//have it work with 0 len tokens buflen tokens etc
+// userspace representation
+
 int main() {
   enum {max=100};
   char buf[max+1];
