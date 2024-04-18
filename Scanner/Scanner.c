@@ -40,9 +40,13 @@ static int open(struct inode *inode, struct file *filp) {
   file->s=(char *)kmalloc(strlen(device.s)+1,GFP_KERNEL);
   if (!file->s) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
+    kfree(file); // free allocated memory
     return -ENOMEM;
   }
   strcpy(file->s,device.s);
+  file->flag = false; // initialize flag to false
+  file->separators = device.separators; // initialize separators
+  file->buf_size = strlen(device.s) + 1; // initialize buffer size
   filp->private_data=file;
   return 0;
 }
@@ -50,7 +54,7 @@ static int open(struct inode *inode, struct file *filp) {
 // release()
 static int release(struct inode *inode, struct file *filp) {
   File *file=filp->private_data;
-  kfree(file->s);
+  kfree(file->s); 
   kfree(file);
   return 0;
 }
@@ -93,7 +97,9 @@ static ssize_t read(struct file *filp, // used in kernel space
 // copy_from_user()
 
 // // ioctl()
-static long ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
+static long ioctl(struct file *file, 
+                  unsigned int cmd,  // used for rewriting seperators
+                  unsigned long arg) { // used for 
     return 0;
 }
 
@@ -107,26 +113,38 @@ static struct file_operations ops={
 
 // init()
 static int __init my_init(void) {
-  const char *s="Hello world!\n";
+  const char *s="Hello:world!\n";  // Testing string
   int err;
+  // allocate memory for device.s
   device.s=(char *)kmalloc(strlen(s)+1,GFP_KERNEL);
   if (!device.s) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
     return -ENOMEM;
   }
-  strcpy(device.s,s);
-  err=alloc_chrdev_region(&device.devno,0,1,DEVNAME);
-  if (err<0) {
+  strcpy(device.s,s); // copy s to device.s
+  // register device 
+  err=alloc_chrdev_region(&device.devno,0,1,DEVNAME); 
+  if (err<0) { 
     printk(KERN_ERR "%s: alloc_chrdev_region() failed\n",DEVNAME);
     return err;
   }
-  cdev_init(&device.cdev,&ops);
-  device.cdev.owner=THIS_MODULE;
-  err=cdev_add(&device.cdev,device.devno,1);
+  // initialize cdev
+  cdev_init(&device.cdev,&ops); 
+  device.cdev.owner=THIS_MODULE; 
+  err=cdev_add(&device.cdev,device.devno,1); 
   if (err) {
     printk(KERN_ERR "%s: cdev_add() failed\n",DEVNAME);
     return err;
   }
+  // initialize seperators
+  const char *sep=" ,";  // default seperators
+  device.separators=(char *)kmalloc(strlen(sep)+1,GFP_KERNEL);
+  if (!device.separators) {
+    printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
+    return -ENOMEM;
+  }
+  strcpy(device.separators,sep);
+  
   printk(KERN_INFO "%s: init\n",DEVNAME);
   return 0;
 }
