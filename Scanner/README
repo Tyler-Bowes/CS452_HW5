@@ -56,3 +56,46 @@ Now that you are inside your VM go into that directory and run
 
 After you exit, you will want to close the VM by running " ssh -p 2222 cs452@localhost
     sudo -S shutdown -h 0"
+
+
+# Demo
+
+This is what happens when I run the program inside the VM after going inside the Scanner file.
+This demo includes the making of the program to executing program.
+
+
+[cs452@qemu Scanner]$ make
+    make -C /lib/modules/5.11.12-300.fc34.x86_64/build M=/home/cs452/Scanner modules
+    make[1]: Entering directory '/usr/src/kernels/5.11.12-300.fc34.x86_64'
+    CC [M]  /home/cs452/Scanner/Scanner.o
+    /home/cs452/Scanner/Scanner.c: In function ‘read’:
+    /home/cs452/Scanner/Scanner.c:106:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+    106 |   ssize_t n = file->buf_size;
+        |   ^~~~~~~
+    /home/cs452/Scanner/Scanner.c: In function ‘my_init’:
+    /home/cs452/Scanner/Scanner.c:253:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+    253 |   const char *sep=",";  // default seperators
+        |   ^~~~~
+    At top level:
+    /home/cs452/Scanner/Scanner.c:159:16: warning: ‘write’ defined but not used [-Wunused-function]
+    159 | static ssize_t write(struct file *filp,
+        |                ^~~~~
+    MODPOST /home/cs452/Scanner/Module.symvers
+    CC [M]  /home/cs452/Scanner/Scanner.mod.o
+    LD [M]  /home/cs452/Scanner/Scanner.ko
+    BTF [M] /home/cs452/Scanner/Scanner.ko
+    Skipping BTF generation for /home/cs452/Scanner/Scanner.ko due to unavailability of vmlinux
+    make[1]: Leaving directory '/usr/src/kernels/5.11.12-300.fc34.x86_64'
+
+
+[cs452@qemu Scanner]$ make install
+    sudo rmmod Scanner.ko || true
+    [sudo] password for cs452: 
+    rmmod: ERROR: Module Scanner is not currently loaded
+    sudo insmod Scanner.ko
+    sudo rm -f /dev/Scanner || true
+    sudo mknod -m a+rw /dev/Scanner c $(./getmaj Scanner) 0
+[cs452@qemu Scanner]$ make try
+    gcc -o TryScanner TryScanner.c -Wall -g
+    ./TryScanner
+    dog:cat
