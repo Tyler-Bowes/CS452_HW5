@@ -116,7 +116,6 @@ static ssize_t read(struct file *filp, // used in kernel space
         kfree(file->s);  // Free memory if copy fails
         return -EFAULT;  // Return error if copy fails
     }
-    // check if n is 0
     if (n == 0) { // handles empty tokens
       // move the sting over the seperator
     }
@@ -125,6 +124,9 @@ static ssize_t read(struct file *filp, // used in kernel space
     file->buf_size -= n + 1; // Update the buffer size
   } else {
     // If the ':' character is not found, copy the entire string back to user space
+    if (n == 0) { // handles end of string
+      return -1;
+    }
     if (copy_to_user(buf, file->s, n)) {
         printk(KERN_ERR "%s: copy_to_user() failed\n", DEVNAME);
         kfree(file->s);  // Free memory if copy fails
@@ -133,21 +135,7 @@ static ssize_t read(struct file *filp, // used in kernel space
     // n bytes were read
     file->buf_size -= n; // Update the buffer size
 
-  }
-  // if there is no seperator return the length of the string
-  
-
-  // for (int i=0; i<n; i++) {
-  //   if (strchr(file->separators,file->s[i])) {
-  //     n=i+1;
-  //     break;
-  //   }
-  // }
-
-  // if (copy_to_user(buf,file->s,n)) {  // copy_to_user() is a kernel function
-  //   printk(KERN_ERR "%s: copy_to_user() failed\n",DEVNAME);
-  //   return 0;
-  // }
+  }  
   return n;
 }
 
