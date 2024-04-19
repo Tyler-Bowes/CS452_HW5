@@ -31,20 +31,23 @@ static Device device;
 */
 static int open(struct inode *inode, struct file *filp) {
   // allocate memory for file struct (can make many instances)
+  printk("PRINTED at start of OPEN\n");
+
   File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
   if (!file) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
-    return -ENOMEM; // return error code
+    return -1; // return error code
   }
 
   // allocate memory for device.s
-  file->s=(char *)kmalloc(strlen(device.s)+1,GFP_KERNEL);
-  if (!file->s) {
-    printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
-    kfree(file); // free allocated memory
-    return -ENOMEM;
-  }
-  strcpy(file->s,device.s);
+  // file->s=(char *)kmalloc(strlen(device.s)+1,GFP_KERNEL);
+  // if (!file->s) {
+  //   printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
+  //   kfree(file); // free allocated memory
+  //   return -ENOMEM;
+  // }
+  // strcpy(file->s,device.s);
+  // memcpy(file->s,device.s, file->)
 
   // allocate memory for seperators
   file->separators=(char *)kmalloc(strlen(device.separators)+1,GFP_KERNEL);
@@ -52,14 +55,16 @@ static int open(struct inode *inode, struct file *filp) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
     kfree(file->s); // free allocated memory
     kfree(file); // free allocated memory
-    return -ENOMEM;
+    return -2;
   }
   strcpy(file->separators,device.separators);
 
   file->flag = false; // initialize flag to false (will be overwritten in ioctl())
-  file->separators = device.separators; // initialize separators
-  file->buf_size = strlen(device.s) + 1; // initialize buffer size
+  file->buf_size = 100;
+  // file->separators = device.separators; // initialize separators
+  // file->buf_size = strlen(device.s) + 1; // initialize buffer size
   filp->private_data=file;
+  printk("PRINTED at end of OPEN\n");
   return 0;
 }
 
@@ -67,7 +72,7 @@ static int open(struct inode *inode, struct file *filp) {
 release()  will free the memory allocated for the file struct and everything in it
 */
 static int release(struct inode *inode, struct file *filp) {
-  File *file=filp->private_data;
+  File *file= filp->private_data;
   kfree(file->s); 
   kfree(file);
   return 0;
@@ -90,7 +95,7 @@ static ssize_t read(struct file *filp, // used in kernel space
 		    char *buf, // buffer (what write to)
 		    size_t count,  // size of buffer
 		    loff_t *f_pos) { // pos offset, dont worry about
-  File *file=filp->private_data;  // pointer to file struct
+  File *file= filp->private_data;  // pointer to file struct
   
   // if we finished scanning document
   if (file->buf_size <= 0) {
@@ -106,7 +111,7 @@ static ssize_t read(struct file *filp, // used in kernel space
   if (found) {
     // If the ':' character is found, copy everything before it back to user space
     n = found - file->s; // length of string before ':'
-    if (copy_to_user(buf, file->s, len_before)) {
+    if (copy_to_user(buf, file->s, n)) {
         printk(KERN_ERR "%s: copy_to_user() failed\n", DEVNAME);
         kfree(file->s);  // Free memory if copy fails
         return -EFAULT;  // Return error if copy fails
@@ -151,7 +156,7 @@ The write function takes in the data from the user space and writes it to the ke
 It also checks if ioctl was called to rewrite the seperators (setting flag to true)
   if flag was set, it will reset the seperators and set the flag to false
 */
-static ssize_t write(struct file *file, 
+static ssize_t write(struct file *filp, 
                       const char __user *buf, 
                       size_t count, 
                       loff_t *ppos) {
@@ -196,10 +201,10 @@ static ssize_t write(struct file *file,
 there is only one command, 0, which is used to rewrite the seperators
   When the command is called flag will be set so the next write can rewrite the seperators
 */
-static long ioctl(struct file *file, 
+static long ioctl(struct file *filp, 
                   unsigned int cmd,  // used for rewriting seperators
                   unsigned long arg) { // arguments used for if cmd had args
-  File *file=filp->private_data;
+  File *file= filp->private_data;
   if (cmd == 0) { // set seperators
     file->flag = true; // set flag to true
   } else {
@@ -230,6 +235,7 @@ static int __init my_init(void) {
   // strcpy(device.s,s); // copy s to device.s
 
   // register device 
+  printk("PRINTING IN INIT1");
   err=alloc_chrdev_region(&device.devno,0,1,DEVNAME); 
   if (err<0) { 
     printk(KERN_ERR "%s: alloc_chrdev_region() failed\n",DEVNAME);
