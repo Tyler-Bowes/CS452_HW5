@@ -33,7 +33,7 @@ static int open(struct inode *inode, struct file *filp) {
   // allocate memory for file struct (can make many instances)
   printk("PRINTED at start of OPEN\n");
 
-  File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
+  File *file=(File *)kmalloc(sizeof(*filp),GFP_KERNEL);
   if (!file) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
     return -1; // return error code
