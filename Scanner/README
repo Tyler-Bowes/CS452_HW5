@@ -1,0 +1,58 @@
+# Project
+* CS 452
+* HW5
+* 4/19/2024
+* Tyler Bowes
+****************
+
+# Overview
+
+This program is a developed Linux module that implements a device drive. It
+is performed on a virtual machine.  The program writes a kernel module. A 
+Scanner is used to help split a sequence of characters into a sequence of tokens 
+based on the position of separators.  As of right now the scanner in the driver
+does not function correctly but the the driver is being created and run.  I have 
+create a user space implementation of the Scanner.c file that works but was unable
+to get it functioning inside the kernel space.  Other than that the driver is 
+working in full function.
+
+# Included Files
+
+README
+Testing_seq.txt
+Scanner
+    getmaj
+    Makefile
+    Scanner.c
+    TryScanner.c
+
+# Testing/Test Suit
+
+To test the scanner I used different sequences of tokens which are all different lengths.
+First I made sure it works as normal with a "simple" sequence like "cat:dog:bug".  Then
+I would test a 0 token length, like "cat::dog".  After making sure that works I used 
+tokens that exeeded the buffer length.  After going through a few more edge case checks
+of making sure the scanner would read and write the sequences I was confident that it would
+work with all sequences.
+
+Sequences inside testing_seq were used to test the scanner.  each line is a sequence used.
+
+# Compiling
+
+To compile and run this program you must have the fedora.img in your folder and run
+" $  ~jbuffenb/classes/452/pub/bin/hw5boot"
+to create your virtual machine.  Once you do that you will have to copy your files
+into the vm.  To do that you run the command:
+" $ scp -P 2222 -r {your directory path of Scanner folder} cs452@localhost:"
+
+After coping the files into your VM you go into the VM by running " $ ssh -p 2222 cs452@localhost"
+
+Now that you are inside your VM go into that directory and run 
+    $ make
+    $ make install
+    $ make try
+    
+    Then you can exit the vm by running $ exit
+
+After you exit, you will want to close the VM by running " ssh -p 2222 cs452@localhost
+    sudo -S shutdown -h 0"

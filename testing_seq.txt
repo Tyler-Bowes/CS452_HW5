@@ -1,0 +1,10 @@
+dog:cat
+dog:cat:bug
+dog,cat
+dog::cat
+abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz::
+,,
+
+,dog
+dog,
+cat;dog;;
