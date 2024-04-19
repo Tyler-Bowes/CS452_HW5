@@ -76,7 +76,7 @@ static int release(struct inode *inode, struct file *filp) {
   kfree(file->s); 
   kfree(file);
   return 0;
-}
+} 
 
 // read() copies until seperator
 /* read takes and scans the string until it finds a seperator, 0 or the end of the string
