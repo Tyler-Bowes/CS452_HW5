@@ -29,7 +29,7 @@ int main() {
   if (ioctl(scanner,0,0))
     ERR("ioctl() for separators failed");
   if (write(scanner,":",1)!=1) {
-    printf("%d scanner value", scanner);
+    // printf("%d scanner value", scanner);
     ERR("write() of separators failed");
   }
   printf("PRINTED in tryscanner 4\n");

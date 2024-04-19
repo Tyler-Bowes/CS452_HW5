@@ -167,11 +167,11 @@ static ssize_t write(struct file *filp,
     file->separators = (char *)kmalloc(count+1,GFP_KERNEL); // allocate memory for seperators
     if (!file->separators) { 
       printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
-      return -ENOMEM;
+      return -4;
     }
     if (copy_from_user(file->separators,buf,count)) { // copy seperators from user
       printk(KERN_ERR "%s: copy_from_user() failed\n",DEVNAME);
-      return -EFAULT;
+      return -2;
     }
     file->flag = false;
   } else {
@@ -250,7 +250,7 @@ static int __init my_init(void) {
     return err;
   }
   // initialize seperators
-  const char *sep=" ,";  // default seperators
+  const char *sep=",";  // default seperators
   device.separators=(char *)kmalloc(strlen(sep)+1,GFP_KERNEL);
   if (!device.separators) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
