@@ -31,12 +31,12 @@ static Device device;
 */
 static int open(struct inode *inode, struct file *filp) {
   // allocate memory for file struct (can make many instances)
-  printk("PRINTED at start of OPEN\n");
+  // printk("PRINTED at start of OPEN\n");
 
-  File *file=(File *)kmalloc(sizeof(*filp),GFP_KERNEL);
+  File *file=(File *)kmalloc(sizeof(*file),GFP_KERNEL);
   if (!file) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
-    return -1; // return error code
+    return -ENOMEM; // return error code
   }
 
   // allocate memory for device.s
@@ -55,7 +55,7 @@ static int open(struct inode *inode, struct file *filp) {
     printk(KERN_ERR "%s: kmalloc() failed\n",DEVNAME);
     kfree(file->s); // free allocated memory
     kfree(file); // free allocated memory
-    return -2;
+    return -ENOMEM;
   }
   strcpy(file->separators,device.separators);
 
@@ -64,7 +64,7 @@ static int open(struct inode *inode, struct file *filp) {
   // file->separators = device.separators; // initialize separators
   // file->buf_size = strlen(device.s) + 1; // initialize buffer size
   filp->private_data=file;
-  printk("PRINTED at end of OPEN\n");
+  // printk("PRINTED at end of OPEN\n");
   return 0;
 }
 

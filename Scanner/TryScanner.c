@@ -22,21 +22,16 @@ int main() {
   char buf[max+1];
   int len;
 
-  printf("PRINTED in tryscanner 1\n");
-
   int scanner=open("/dev/Scanner",O_RDWR);
-  if (scanner<0) {
-    printf("%d scanner value", scanner);
+  if (scanner<0)
     ERR("open() failed");
-  }
-  printf("PRINTED in tryscanner 2\n");
 
   if (ioctl(scanner,0,0))
     ERR("ioctl() for separators failed");
-  printf("PRINTED in tryscanner 3\n");
-
-  if (write(scanner,":",1)!=1)
+  if (write(scanner,":",1)!=1) {
+    printf("%d scanner value", scanner);
     ERR("write() of separators failed");
+  }
   printf("PRINTED in tryscanner 4\n");
 
   for (char *line; scanf("%m[^\n]\n",&line)!=EOF;) {
